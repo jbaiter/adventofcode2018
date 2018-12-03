@@ -49,8 +49,7 @@ fn get_common_chars<'a>(a: &'a str, b: &'a str) -> String {
 fn main() -> Result<()> {
     let stdin = io::stdin();
     let box_ids: Vec<String> = stdin.lock().lines()
-        .map(|l| Ok(l?.to_string()))
-        .collect::<Result<_>>()?;
+        .collect::<std::result::Result<Vec<String>, _>>()?;
     let checksum = checksum_boxes(&box_ids);
     println!("List checksum: {}", checksum);
     match find_right_boxes(&box_ids) {

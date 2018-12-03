@@ -8,10 +8,8 @@ fn main() -> Result<()> {
     let mut freq: i64 = 0;
     let stdin = io::stdin();
     let freq_changes: Vec<i64> = stdin.lock().lines()
-        // FIXME: Would be better to use `?` here, but io::Error can't be converted to
-        // num::ParseIntError
-        .map(|l| l.unwrap_or("0".to_string()).parse::<i64>())
-        .collect::<std::result::Result<_, _>>()?;
+        .map(|l| Ok(l?.parse()?))
+        .collect::<std::result::Result<_, Box<error::Error>>>()?;
 
     for change in &freq_changes {
         freq += change;
