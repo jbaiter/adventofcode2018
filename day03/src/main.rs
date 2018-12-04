@@ -5,6 +5,7 @@ use std::io::{self, BufRead};
 use std::collections::HashMap;
 use std::error;
 use std::fmt;
+use std::str::FromStr;
 
 use regex::Regex;
 
@@ -64,29 +65,33 @@ struct Claim {
     lry: u32
 }
 
-impl Claim {
-    pub fn parse<'a>(spec: &'a str) -> Result<Claim> {
+impl FromStr for Claim {
+    type Err = Box<error::Error>;
+
+    fn from_str(s: &str) -> Result<Claim> {
         lazy_static! {
             // #<id> @ <x>,<y>: <w>,<h>
             static ref CLAIM_RE: Regex = Regex::new(
                 r"^#(?P<id>\d+) @ (?P<x>\d+),(?P<y>\d+): (?P<w>\d+)x(?P<h>\d+)$").unwrap();
         }
-        let make_err = || ParseError { input: spec.to_string() };
-        let caps = CLAIM_RE.captures(spec).ok_or(make_err())?;
-        let x: u32 = caps.name("x").ok_or(make_err())?.as_str().parse()?;
-        let y: u32 = caps.name("y").ok_or(make_err())?.as_str().parse()?;
-        let w: u32 = caps.name("w").ok_or(make_err())?.as_str().parse()?;
-        let h: u32 = caps.name("h").ok_or(make_err())?.as_str().parse()?;
+        let caps = CLAIM_RE.captures(s)
+            .ok_or(ParseError { input: s.to_string() })?;
+        let x: u32 = caps["x"].parse()?;
+        let y: u32 = caps["y"].parse()?;
+        let w: u32 = caps["w"].parse()?;
+        let h: u32 = caps["h"].parse()?;
 
         Ok(Claim {
-            id: caps.name("id").ok_or(make_err())?.as_str().parse()?,
+            id: caps["id"].parse()?,
             ulx: x,
             uly: y,
             lrx: x + w - 1,
             lry: y + h - 1,
         })
     }
+}
 
+impl Claim {
     pub fn positions(&self) -> PositionIter {
         PositionIter {
             claim: self,
@@ -100,7 +105,7 @@ fn main() -> Result<()> {
     let mut positions: HashMap<(u32, u32), u32> = HashMap::new();
     let stdin = io::stdin();
     let claims: Vec<Claim> = stdin.lock().lines()
-        .map(|l| Claim::parse(&l?))
+        .map(|l| l?.parse())
         .collect::<Result<_>>()?;
     for claim in &claims {
         for pos in claim.positions() {

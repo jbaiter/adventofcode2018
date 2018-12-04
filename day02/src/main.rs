@@ -25,7 +25,7 @@ fn checksum_boxes(box_ids: &Vec<String>) -> u64 {
     return two_ids * three_ids;
 }
 
-fn string_dist<'a>(a: &'a str, b: &'a str) -> u64 {
+fn string_dist(a: &str, b: &str) -> u64 {
     let mut dist = a.chars().zip(b.chars()).map(|(x, y)| (x != y) as u64).sum();
     dist += (a.len() as i64 - b.len() as i64).abs() as u64;
     return dist;
@@ -42,14 +42,14 @@ fn find_right_boxes(box_ids: &Vec<String>) -> Option<(String, String)> {
     None
 }
 
-fn get_common_chars<'a>(a: &'a str, b: &'a str) -> String {
+fn get_common_chars(a: &str, b: &str) -> String {
     a.chars().zip(b.chars()).filter(|(x, y)| x == y).map(|(x, _)| x).collect()
 }
 
 fn main() -> Result<()> {
     let stdin = io::stdin();
     let box_ids: Vec<String> = stdin.lock().lines()
-        .collect::<std::result::Result<Vec<String>, _>>()?;
+        .collect::<std::result::Result<_, _>>()?;
     let checksum = checksum_boxes(&box_ids);
     println!("List checksum: {}", checksum);
     match find_right_boxes(&box_ids) {

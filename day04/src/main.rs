@@ -119,20 +119,20 @@ impl GuardLog {
             .max_by(|(_, a), (_, b)| {
                 a.iter().sum::<u32>().cmp(&b.iter().sum::<u32>())
             }).unwrap();
-        let sleepy_minute = ts.iter().enumerate().max_by_key(|&(_, v)| v).unwrap().0 as u32;
+        let sleepy_minute = ts.iter().enumerate()
+            .max_by_key(|&(_, v)| v).unwrap().0 as u32;
         (*guard_id, sleepy_minute)
     }
 
     fn strategy_two(&self) -> (u32, u32) {
         let mut sleepiest_minutes: HashMap<u32, (u32, u32)> = HashMap::new();
         for (guard, times) in self.get_sleep_times() {
-            let (min, cnt) = times.iter()
-                .enumerate().max_by_key(|&(_, v)| v).unwrap();
+            let (min, cnt) = times.iter().enumerate()
+                .max_by_key(|&(_, v)| v).unwrap();
             sleepiest_minutes.insert(guard, (min as u32, *cnt));
         }
         let (&long_guard, &(min, _)) = sleepiest_minutes.iter()
-            .max_by_key(|(_, (_, cnt))| cnt)
-            .unwrap();
+            .max_by_key(|(_, (_, cnt))| cnt).unwrap();
         (long_guard, min)
     }
 }
