@@ -1,43 +1,34 @@
-#[macro_use] extern crate lazy_static;
-extern crate itertools;
-extern crate regex;
-
 use std::io::{self, Read};
-use itertools::Itertools;
-use regex::Regex;
+
+fn toggle_case(c: char) -> char {
+    if c.is_lowercase() {
+        c.to_ascii_uppercase()
+    } else {
+        c.to_ascii_lowercase()
+    }
+}
 
 fn reduce(chain: &String) -> String {
-    lazy_static! {
-        // Create pattern for pairs with opposite polarity
-        static ref _PAT_STR: String = (('A' as u8)..('Z' as u8)+1)
-            .flat_map(|x| vec![[x, x+32], [x+32, x]])
-            .map(|cs| String::from_utf8_lossy(&cs).into_owned())
-            .join("|");
-        static ref REDUCTION_PAT: Regex = Regex::new(&_PAT_STR).unwrap();
-    }
-    let mut chain = chain.clone();
-    let mut last_len = chain.len();
-    loop {
-        chain = REDUCTION_PAT.replace_all(&chain, "").into_owned();
-        if last_len == chain.len() {
-            break
+    chain.chars().fold(String::new(), |mut r, c| {
+        if r.ends_with(toggle_case(c)) {
+            r.pop();
+        } else {
+            r.push(c);
         }
-        last_len = chain.len()
-    }
-    chain
+        r
+    })
+
 }
 
 fn find_maximum_reduction(chain: &String) -> String {
-    let mut shortest = chain.clone();
-    for chr in ('A' as u8)..('Z' as u8)+1 {
-        let chain_variant = chain.replace(chr as char, "")
-                                 .replace((chr + 32) as char, "");
-        let reduced = reduce(&chain_variant);
-        if reduced.len() < shortest.len() {
-            shortest = reduced;
-        }
-    }
-    shortest
+    "abcdefghijklmnopqrstuvwxyz".chars()
+        .map(|c| -> String {
+            chain.chars()
+                .filter(|&x| x != c && x != toggle_case(c))
+                .collect() })
+        .map(|c| reduce(&c))
+        .min_by_key(|c| c.len())
+        .unwrap()
 }
 
 
