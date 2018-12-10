@@ -1,0 +1,13 @@
+[package]
+name = "day10"
+version = "0.1.0"
+authors = ["Johannes Baiter <johannes.baiter@bsb-muenchen.de>"]
+edition = "2018"
+
+[dependencies]
+piston = "0.39.0"
+piston2d-graphics = "0.28.0"
+pistoncore-glutin_window = "0.51.0"
+piston2d-opengl_graphics = "0.57.0"
+lazy_static = "*"
+regex = "1"
